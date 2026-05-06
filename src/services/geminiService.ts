@@ -65,11 +65,15 @@ export async function analyzeAccountingFile(file: File, prompt: string) {
     parts.push(instructionPart);
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-3-flash-preview",
       contents: [{ role: "user", parts }],
     });
 
-    const text = response.text || "";
+    if (!response || !response.text) {
+      throw new Error("The AI returned an empty response. This can happen with very complex files or if the API key has hit a temporary limit.");
+    }
+
+    const text = response.text;
     
     // Clean the response text (remove markdown code blocks if present)
     const jsonMatch = text.match(/\{[\s\S]*\}/);
