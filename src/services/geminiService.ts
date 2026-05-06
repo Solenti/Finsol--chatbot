@@ -5,6 +5,10 @@ const API_KEY = process.env.GEMINI_API_KEY || "";
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 export async function analyzeAccountingFile(file: File, prompt: string) {
+  if (!API_KEY) {
+    throw new Error("GEMINI_API_KEY is missing. Please set it in your environment variables.");
+  }
+  
   try {
     const mimeType = file.type;
     const isExcel = mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || 
@@ -60,9 +64,9 @@ export async function analyzeAccountingFile(file: File, prompt: string) {
 
     parts.push(instructionPart);
 
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
-      contents: { parts },
+    const response = await ai.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: [{ role: "user", parts }],
     });
 
     const text = response.text || "";
